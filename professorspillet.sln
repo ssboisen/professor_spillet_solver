@@ -5,6 +5,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "professorspillet", "profess
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "professorspillet_fsharp", "professorspillet_fsharp\professorspillet_fsharp.fsproj", "{29DC7CFF-D201-407D-9417-D4B386583EF3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{388C83AB-86AC-4A3B-A637-7E59952DA8E7}"
+	ProjectSection(SolutionItems) = preProject
+		Performance1.psess = Performance1.psess
+		Performance2.psess = Performance2.psess
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86

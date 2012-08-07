@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -95,8 +96,10 @@ namespace professorspillet
                                                                              new ProfessorChecker.ProfessorCheckerSideConfig(BodyPart.Top, Color.Brown),
                                                                              new ProfessorChecker.ProfessorCheckerSideConfig(BodyPart.Bottom, Color.Brown)),
                                                     });
-
-            solver.Solve();
+            var sw = Stopwatch.StartNew();
+            var solutions = solver.Solve().ToList();
+            Console.WriteLine("{0} solutions found", solutions.Count);
+            Console.WriteLine(sw.Elapsed);
         }
     }
 
@@ -112,53 +115,57 @@ namespace professorspillet
             _checkers = checkers;
         }
 
-        public void Solve()
+        public IEnumerable<ProfessorChecker[]> Solve()
         {
-            for (int i = 0; i < _checkers.Length; i++)
+            foreach (var checker in _checkers)
             {
-                var checker = _checkers[i];
-
-                for (int j = 0; j < checker.Sides.Length; j++)
+                foreach (var board in checker.Sides.Select(t => new ProfessorChecker[16]))
                 {
-                    var solution = new ProfessorChecker[16];
-                    solution[0] = checker;
+                    board[0] = checker;
 
-                    BuildSolutionRecursively(solution, 0);
+                    var solutions = BuildSolutionRecursively(board, 0).ToList();
+
+                    foreach (var solution in solutions)
+                    {
+                        yield return solution;
+                    }
 
                     checker.TurnRight();
                 }
             }
 
             Console.WriteLine("{0} possible solutions tried", count);
-            Console.WriteLine("{0} solutions found", solutionCount);
         }
 
         private int count;
-        private int solutionCount;
-        private void BuildSolutionRecursively(ProfessorChecker[] solution, int solutionIndex)
+        private IEnumerable<ProfessorChecker[]> BuildSolutionRecursively(ProfessorChecker[] board, int solutionIndex)
         {
             var nextIndex = solutionIndex + 1;
 
-            var matchingCheckers = FindMatchingChecker(solution, solutionIndex).ToList();
+            var matchingCheckers = FindMatchingChecker(board, solutionIndex).ToList();
 
             foreach (var nextChecker in matchingCheckers)
             {
                 for (int i = nextIndex; i < 16; i++)
                 {
-                    solution[i] = null;
+                    board[i] = null;
                 }
 
-                solution[nextIndex] = nextChecker;
-                
-                if (nextIndex == 15 && IsSolutionValid(solution))
+                board[nextIndex] = nextChecker;
+
+                if (nextIndex == 15)
                 {
-                    /*Console.WriteLine("Solution found");
-                    PrintSolution(solution);*/
-                    solutionCount++;
+                    yield return board.Select(pc => pc.Clone()).ToArray();
                 }
 
                 if (nextIndex < 15)
-                    BuildSolutionRecursively(solution, nextIndex);
+                {
+                    foreach (var solution in BuildSolutionRecursively(board, nextIndex))
+                    {
+                        yield return solution;
+                    }
+
+                }
             }
 
             count++;
@@ -166,12 +173,7 @@ namespace professorspillet
 
         private ProfessorChecker[] Clone(ProfessorChecker[] solution)
         {
-            return solution.Select(pc =>
-            {
-                if (pc != null)
-                    return pc.Clone();
-                return null;
-            }).ToArray();
+            return solution.Select(pc => pc != null ? pc.Clone() : null).ToArray();
         }
 
         private bool IsSolutionValid(ProfessorChecker[] solution)
@@ -322,7 +324,7 @@ namespace professorspillet
                         }
                     }
 
-                    if (thisIndex > 4 && thisIndex <= 7) //second row, column 2-4
+                    if (thisIndex >= 5 && thisIndex <= 7) //second row, column 2-4
                     {
                         var leftChecker = solution[thisIndex - 1];
                         var topChecker = solution[thisIndex % 4];
@@ -348,7 +350,7 @@ namespace professorspillet
                         }
                     }
 
-                    if (thisIndex > 8 && thisIndex <= 11) //third row, column 2-4
+                    if (thisIndex >= 9 && thisIndex <= 11) //third row, column 2-4
                     {
                         var leftChecker = solution[thisIndex - 1];
                         var topChecker = solution[thisIndex - 4];
@@ -373,7 +375,7 @@ namespace professorspillet
                         }
                     }
 
-                    if (thisIndex > 12 && thisIndex <= 15) //third row, column 2-4
+                    if (thisIndex >= 13 && thisIndex <= 15) //third row, column 2-4
                     {
                         var leftChecker = solution[thisIndex - 1];
                         var topChecker = solution[thisIndex - 4];
@@ -521,8 +523,8 @@ namespace professorspillet
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != typeof (ProfessorChecker)) return false;
-            return Equals((ProfessorChecker) obj);
+            if (obj.GetType() != typeof(ProfessorChecker)) return false;
+            return Equals((ProfessorChecker)obj);
         }
 
         public bool Equals(ProfessorChecker other)
