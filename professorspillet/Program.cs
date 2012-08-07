@@ -99,7 +99,9 @@ namespace professorspillet
             var sw = Stopwatch.StartNew();
             var solutions = solver.Solve().ToList();
             Console.WriteLine("{0} solutions found", solutions.Count);
+            solver.PrintSolution(solutions.First());
             Console.WriteLine(sw.Elapsed);
+            Console.ReadKey();
         }
     }
 
@@ -279,7 +281,7 @@ namespace professorspillet
 
             return retVal;
         }
-        private void PrintSolution(ProfessorChecker[] solution)
+        public void PrintSolution(ProfessorChecker[] solution)
         {
             Console.WriteLine("------------- SOLUTION START --------------");
             for (int i = 0; i < solution.Length; i++)
