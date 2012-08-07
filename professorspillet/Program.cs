@@ -313,7 +313,7 @@ namespace professorspillet
                         }
                     }
 
-                    if (thisIndex == 4) //first column, second row
+                    else if (thisIndex == 4) //first column, second row
                     {
                         var topChecker = solution[0];
 
@@ -324,7 +324,7 @@ namespace professorspillet
                         }
                     }
 
-                    if (thisIndex >= 5 && thisIndex <= 7) //second row, column 2-4
+                    else if (thisIndex >= 5 && thisIndex <= 7) //second row, column 2-4
                     {
                         var leftChecker = solution[thisIndex - 1];
                         var topChecker = solution[thisIndex % 4];
@@ -339,7 +339,7 @@ namespace professorspillet
                     }
 
 
-                    if (thisIndex == 8) //first column, third row
+                    else if (thisIndex == 8) //first column, third row
                     {
                         var topChecker = solution[4];
 
@@ -350,7 +350,7 @@ namespace professorspillet
                         }
                     }
 
-                    if (thisIndex >= 9 && thisIndex <= 11) //third row, column 2-4
+                    else if (thisIndex >= 9 && thisIndex <= 11) //third row, column 2-4
                     {
                         var leftChecker = solution[thisIndex - 1];
                         var topChecker = solution[thisIndex - 4];
@@ -364,7 +364,7 @@ namespace professorspillet
                         }
                     }
 
-                    if (thisIndex == 12) //first column, fourth row
+                    else if (thisIndex == 12) //first column, fourth row
                     {
                         var topChecker = solution[8];
 
@@ -375,7 +375,7 @@ namespace professorspillet
                         }
                     }
 
-                    if (thisIndex >= 13 && thisIndex <= 15) //third row, column 2-4
+                    else if (thisIndex >= 13 && thisIndex <= 15) //third row, column 2-4
                     {
                         var leftChecker = solution[thisIndex - 1];
                         var topChecker = solution[thisIndex - 4];
