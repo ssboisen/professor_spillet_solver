@@ -298,9 +298,9 @@ namespace professorspillet
 
             foreach (var unusedProfessorChecker in unused)
             {
-                for (int i = 0; i < unusedProfessorChecker.Sides.Length; i++)
+                for (int i = 0; i < 4; i++)
                 {
-                    if (thisIndex >= 1 && thisIndex <= 3) //first row
+                    if (thisIndex < 4) //first row
                     {
                         var leftChecker = solution[solutionIndex];
 
@@ -311,61 +311,10 @@ namespace professorspillet
                         }
                     }
 
-                    else if (thisIndex == 4) //first column, second row
+                    else if (thisIndex % 4 == 0) //first column, in any other row
                     {
-                        var topChecker = solution[0];
-
-                        if (topChecker.Bottom.Color == unusedProfessorChecker.Top.Color
-                            && topChecker.Bottom.BodyPart != unusedProfessorChecker.Top.BodyPart)
-                        {
-                            yield return unusedProfessorChecker.Clone();
-                        }
-                    }
-
-                    else if (thisIndex >= 5 && thisIndex <= 7) //second row, column 2-4
-                    {
-                        var leftChecker = solution[thisIndex - 1];
-                        var topChecker = solution[thisIndex % 4];
-
-                        if (leftChecker.Right.Color == unusedProfessorChecker.Left.Color &&
-                            leftChecker.Right.BodyPart != unusedProfessorChecker.Left.BodyPart &&
-                            topChecker.Bottom.Color == unusedProfessorChecker.Top.Color &&
-                            topChecker.Bottom.BodyPart != unusedProfessorChecker.Top.BodyPart)
-                        {
-                            yield return unusedProfessorChecker.Clone();
-                        }
-                    }
-
-
-                    else if (thisIndex == 8) //first column, third row
-                    {
-                        var topChecker = solution[4];
-
-                        if (topChecker.Bottom.Color == unusedProfessorChecker.Top.Color
-                            && topChecker.Bottom.BodyPart != unusedProfessorChecker.Top.BodyPart)
-                        {
-                            yield return unusedProfessorChecker.Clone();
-                        }
-                    }
-
-                    else if (thisIndex >= 9 && thisIndex <= 11) //third row, column 2-4
-                    {
-                        var leftChecker = solution[thisIndex - 1];
                         var topChecker = solution[thisIndex - 4];
 
-                        if (leftChecker.Right.Color == unusedProfessorChecker.Left.Color &&
-                            leftChecker.Right.BodyPart != unusedProfessorChecker.Left.BodyPart &&
-                            topChecker.Bottom.Color == unusedProfessorChecker.Top.Color &&
-                            topChecker.Bottom.BodyPart != unusedProfessorChecker.Top.BodyPart)
-                        {
-                            yield return unusedProfessorChecker.Clone();
-                        }
-                    }
-
-                    else if (thisIndex == 12) //first column, fourth row
-                    {
-                        var topChecker = solution[8];
-
                         if (topChecker.Bottom.Color == unusedProfessorChecker.Top.Color
                             && topChecker.Bottom.BodyPart != unusedProfessorChecker.Top.BodyPart)
                         {
@@ -373,7 +322,7 @@ namespace professorspillet
                         }
                     }
 
-                    else if (thisIndex >= 13 && thisIndex <= 15) //third row, column 2-4
+                    else //2nd-4th column in 2nd-4th row
                     {
                         var leftChecker = solution[thisIndex - 1];
                         var topChecker = solution[thisIndex - 4];
