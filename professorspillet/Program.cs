@@ -142,7 +142,6 @@ namespace professorspillet
             return bag;
         }
 
-        private object obj = new object();
         private IEnumerable<ProfessorChecker[]> BuildSolutionRecursively(ProfessorChecker[] board, int solutionIndex, ProfessorChecker[] checkers)
         {
             var nextIndex = solutionIndex + 1;

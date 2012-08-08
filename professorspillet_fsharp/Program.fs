@@ -44,7 +44,7 @@ let SolveProfessorPuzzle (checkers : ProfessorChecker Set) =
                                                                     yield c
 
                         | { Top = (tColor,tBodyPart) }, idx when 
-                                                                idx = 4 || idx = 8 || idx = 12 &&
+                                                                idx % 4 = 0 &&
                                                                 getColor (idx - 4) (fun c -> c.Bottom) = tColor & 
                                                                 getBodyPart (idx - 4) (fun c -> c.Bottom) <> tBodyPart -> 
                                                                 yield c
