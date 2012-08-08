@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace professorspillet
 {
@@ -99,7 +101,6 @@ namespace professorspillet
             var sw = Stopwatch.StartNew();
             var solutions = solver.Solve().ToList();
             Console.WriteLine("{0} solutions found", solutions.Count);
-            solver.PrintSolution(solutions.First());
             Console.WriteLine(sw.Elapsed);
             Console.ReadKey();
         }
@@ -119,32 +120,33 @@ namespace professorspillet
 
         public IEnumerable<ProfessorChecker[]> Solve()
         {
-            foreach (var checker in _checkers)
-            {
-                foreach (var board in checker.Sides.Select(t => new ProfessorChecker[16]))
-                {
-                    board[0] = checker;
+            var bag = new ConcurrentBag<ProfessorChecker[]>();
+            _checkers.AsParallel().ForAll(checker =>
+                                              {
+                                                  var checkers = _checkers.Select(c => c.Clone()).ToArray();
+                                                  for (int i = 0; i < 4; i++)
+                                                  {
+                                                      var board = new ProfessorChecker[16];
+                                                      board[0] = checker;
 
-                    var solutions = BuildSolutionRecursively(board, 0).ToList();
+                                                      var solutions = BuildSolutionRecursively(board, 0, checkers).ToList();
 
-                    foreach (var solution in solutions)
-                    {
-                        yield return solution;
-                    }
+                                                      foreach (var solution in solutions)
+                                                      {
+                                                          bag.Add(solution);
+                                                      }
 
-                    checker.TurnRight();
-                }
-            }
-
-            Console.WriteLine("{0} possible solutions tried", count);
+                                                      checker.TurnRight();
+                                                  }
+                                              });
+            return bag;
         }
 
-        private int count;
-        private IEnumerable<ProfessorChecker[]> BuildSolutionRecursively(ProfessorChecker[] board, int solutionIndex)
+        private object obj = new object();
+        private IEnumerable<ProfessorChecker[]> BuildSolutionRecursively(ProfessorChecker[] board, int solutionIndex, ProfessorChecker[] checkers)
         {
             var nextIndex = solutionIndex + 1;
-
-            var matchingCheckers = FindMatchingChecker(board, solutionIndex).ToList();
+            var matchingCheckers = FindMatchingChecker(board, solutionIndex, checkers).ToList();
 
             foreach (var nextChecker in matchingCheckers)
             {
@@ -157,7 +159,7 @@ namespace professorspillet
 
                 if (nextIndex < 15)
                 {
-                    foreach (var solution in BuildSolutionRecursively(board, nextIndex))
+                    foreach (var solution in BuildSolutionRecursively(board, nextIndex, checkers))
                     {
                         yield return solution;
                     }
@@ -165,134 +167,11 @@ namespace professorspillet
 
                 board[nextIndex] = null;
             }
-
-            count++;
         }
 
-        private ProfessorChecker[] Clone(ProfessorChecker[] solution)
+        private IEnumerable<ProfessorChecker> FindMatchingChecker(ProfessorChecker[] solution, int solutionIndex, ProfessorChecker[] checkers)
         {
-            return solution.Select(pc => pc != null ? pc.Clone() : null).ToArray();
-        }
-
-        private bool IsSolutionValid(ProfessorChecker[] solution)
-        {
-            var nonNullSolution = solution.Where(x => x != null).ToArray();
-            bool retVal = true;
-            for (int i = 1; i < nonNullSolution.Length; i++)
-            {
-                var current = nonNullSolution[i];
-                if (i >= 1 && i <= 3) //first row
-                {
-                    var leftChecker = nonNullSolution[i - 1];
-
-                    if (!(leftChecker.Right.Color == current.Left.Color &&
-                        leftChecker.Right.BodyPart != current.Left.BodyPart))
-                    {
-                        retVal = false;
-                    }
-                }
-
-                else if (i == 4) //first column, second row
-                {
-                    var topChecker = nonNullSolution[0];
-
-                    if (!(topChecker.Bottom.Color == current.Top.Color
-                        && topChecker.Bottom.BodyPart != current.Top.BodyPart))
-                    {
-                        retVal = false;
-                    }
-                }
-
-                else if (i > 4 && i <= 7) //second row, column 2-4
-                {
-                    var leftChecker = nonNullSolution[i - 1];
-                    var topChecker = nonNullSolution[i % 4];
-
-                    if (!(leftChecker.Right.Color == current.Left.Color &&
-                        leftChecker.Right.BodyPart != current.Left.BodyPart &&
-                        topChecker.Bottom.Color == current.Top.Color &&
-                        topChecker.Bottom.BodyPart != current.Top.BodyPart))
-                    {
-                        retVal = false;
-                    }
-                }
-
-
-                else if (i == 8) //first column, third row
-                {
-                    var topChecker = nonNullSolution[4];
-
-                    if (!(topChecker.Bottom.Color == current.Top.Color
-                        && topChecker.Bottom.BodyPart != current.Top.BodyPart))
-                    {
-                        retVal = false;
-                    }
-                }
-
-                if (i > 8 && i <= 11) //third row, column 2-4
-                {
-                    var leftChecker = nonNullSolution[i - 1];
-                    var topChecker = nonNullSolution[i - 4];
-
-                    if (!(leftChecker.Right.Color == current.Left.Color &&
-                        leftChecker.Right.BodyPart != current.Left.BodyPart &&
-                        topChecker.Bottom.Color == current.Top.Color &&
-                        topChecker.Bottom.BodyPart != current.Top.BodyPart))
-                    {
-                        retVal = false;
-                    }
-                }
-
-                else if (i == 12) //first column, fourth row
-                {
-                    var topChecker = nonNullSolution[8];
-
-                    if (!(topChecker.Bottom.Color == current.Top.Color
-                        && topChecker.Bottom.BodyPart != current.Top.BodyPart))
-                    {
-                        retVal = false;
-                    }
-                }
-
-                else if (i > 12 && i <= 15) //third row, column 2-4
-                {
-                    var leftChecker = nonNullSolution[i - 1];
-                    var topChecker = nonNullSolution[i - 4];
-
-                    if (!(leftChecker.Right.Color == current.Left.Color &&
-                        leftChecker.Right.BodyPart != current.Left.BodyPart &&
-                        topChecker.Bottom.Color == current.Top.Color &&
-                        topChecker.Bottom.BodyPart != current.Top.BodyPart))
-                    {
-                        retVal = false;
-                    }
-                }
-
-                if (!retVal)
-                {
-                    Console.WriteLine("Invalid: " + current);
-                    break;
-                }
-            }
-
-            return retVal;
-        }
-        public void PrintSolution(ProfessorChecker[] solution)
-        {
-            Console.WriteLine("------------- SOLUTION START --------------");
-            for (int i = 0; i < solution.Length; i++)
-            {
-                var pc = solution[i];
-                Console.WriteLine(i);
-                Console.WriteLine(pc);
-            }
-
-            Console.WriteLine("------------- SOLUTION END --------------");
-        }
-
-        private IEnumerable<ProfessorChecker> FindMatchingChecker(ProfessorChecker[] solution, int solutionIndex)
-        {
-            var unused = _checkers.Except(solution).ToList();
+            var unused = checkers.Except(solution).ToList();
 
             var thisIndex = solutionIndex + 1;
 
