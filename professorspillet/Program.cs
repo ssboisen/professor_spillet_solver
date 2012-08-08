@@ -148,11 +148,6 @@ namespace professorspillet
 
             foreach (var nextChecker in matchingCheckers)
             {
-                for (int i = nextIndex; i < 16; i++)
-                {
-                    board[i] = null;
-                }
-
                 board[nextIndex] = nextChecker;
 
                 if (nextIndex == 15)
@@ -166,8 +161,9 @@ namespace professorspillet
                     {
                         yield return solution;
                     }
-
                 }
+
+                board[nextIndex] = null;
             }
 
             count++;

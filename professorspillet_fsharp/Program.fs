@@ -67,7 +67,7 @@ let SolveProfessorPuzzle (checkers : ProfessorChecker Set) =
         let matches = findMatchingCheckers board index
         seq {
             for c in matches do
-                
+                yield c
         }
 
     buildSolution checkers 0
